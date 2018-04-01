@@ -1,25 +1,24 @@
-import heapq
-
-# use negate to use heapq as max heap
-def negate (value):
-  return -1 * value
-
 def split (value):
-  if value % 2 == 0:
-    sEven = value // 2
-    return sEven, sEven - 1
-  else:
-    sOdd = (value - 1) // 2
-    return sOdd, sOdd
+  return value // 2, (value - 1) // 2
 
 def calcSpaces (numOfStalls, numOfPeople):
-  priorityQueue = []
-  heapq.heappush(priorityQueue, negate(numOfStalls))
-  for _ in range(numOfPeople):
-    largestSegment = negate(heapq.heappop(priorityQueue))
+  dictionary = { numOfStalls: 1 }
+  splitCount = 0
+
+  while (splitCount < numOfPeople):
+    largestSegment = max(dictionary)
+    numOfLargestSegment = dictionary[largestSegment]
     spaceLeft, spaceRight = split(largestSegment)
-    heapq.heappush(priorityQueue, negate(spaceLeft))
-    heapq.heappush(priorityQueue, negate(spaceRight))
+
+    # accelerate using the fact that same number would split into same two nodes
+    # `+ numOfLargestSegment` means by one split, already consider all node of that value
+    dictionary[spaceLeft] = dictionary.get(spaceLeft, 0) + numOfLargestSegment
+    dictionary[spaceRight] = dictionary.get(spaceRight, 0) + numOfLargestSegment
+    splitCount += numOfLargestSegment
+
+    # because all nodes of that value are splitted
+    # so can remove it
+    del dictionary[largestSegment]
 
   return spaceLeft, spaceRight
 
